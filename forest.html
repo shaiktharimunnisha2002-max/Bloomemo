@@ -1,150 +1,170 @@
 <!DOCTYPE html>
 
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Memory Forest | BloomMemo</title>
-
-<link rel="stylesheet" href="css/style.css">
+<title>BloomMemo Forest</title>
 
 <style>
 
-body{
+*{
 margin:0;
-font-family:'Poppins',sans-serif;
-background:linear-gradient(180deg,#07111f,#10233f);
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
+body{
+background:#07111f;
 color:white;
+overflow-x:hidden;
 }
 
 .navbar{
+position:fixed;
+top:0;
+width:100%;
 display:flex;
 justify-content:space-between;
 align-items:center;
-padding:20px 8%;
-background:rgba(255,255,255,.05);
+padding:15px 40px;
+background:rgba(0,0,0,.3);
 backdrop-filter:blur(10px);
+z-index:1000;
 }
 
-.logo{
-font-size:1.4rem;
-font-weight:700;
-}
-
-.nav-links{
-display:flex;
-gap:20px;
-}
-
-.nav-links a{
+.navbar a{
 color:white;
 text-decoration:none;
+margin-left:20px;
 }
 
-.hero{
-text-align:center;
-padding:40px 20px;
-}
-
-.search-bar{
-max-width:500px;
-margin:auto;
-}
-
-.search-bar input{
+#forestMap{
+position:relative;
 width:100%;
-padding:14px;
-border:none;
-border-radius:15px;
+height:1800px;
+background:
+linear-gradient(
+180deg,
+#07111f 0%,
+#10233f 50%,
+#1a4733 100%
+);
+overflow:hidden;
 }
 
-.filters{
-display:flex;
-justify-content:center;
-gap:10px;
-flex-wrap:wrap;
-padding:20px;
+.moon{
+position:absolute;
+top:80px;
+right:100px;
+font-size:90px;
 }
 
-.filter-btn{
-padding:10px 18px;
-border:none;
-border-radius:50px;
-cursor:pointer;
-background:rgba(255,255,255,.1);
-color:white;
-}
-
-.filter-btn.active{
-background:#2ecc71;
-}
-
-.forest-grid{
-display:grid;
-grid-template-columns:
-repeat(auto-fit,minmax(220px,1fr));
-gap:20px;
-padding:30px;
-}
-
-.tree-card{
-background:rgba(255,255,255,.08);
-padding:25px;
-border-radius:20px;
-text-align:center;
+.memory-tree{
+position:absolute;
 cursor:pointer;
 transition:.3s;
+user-select:none;
 }
 
-.tree-card:hover{
-transform:translateY(-5px);
+.memory-tree:hover{
+transform:scale(1.2);
+filter:drop-shadow(0 0 15px #7dff9d);
 }
 
 .tree-icon{
 font-size:70px;
-margin-bottom:10px;
+display:block;
+text-align:center;
 }
 
-.meta{
-font-size:.9rem;
-opacity:.8;
+.tree-name{
+font-size:12px;
+text-align:center;
+margin-top:5px;
+}
+
+.firefly{
+position:absolute;
+font-size:16px;
+animation:float 5s infinite ease-in-out;
+}
+
+@keyframes float{
+
+0%{
+transform:translateY(0px);
+opacity:.3;
+}
+
+50%{
+transform:translateY(-20px);
+opacity:1;
+}
+
+100%{
+transform:translateY(0px);
+opacity:.3;
+}
+
 }
 
 .modal{
 display:none;
 position:fixed;
 inset:0;
-background:rgba(0,0,0,.7);
+background:rgba(0,0,0,.75);
 justify-content:center;
 align-items:center;
-z-index:1000;
+z-index:2000;
 }
 
 .modal-content{
 background:#10233f;
 width:90%;
-max-width:600px;
-padding:30px;
+max-width:500px;
+padding:25px;
 border-radius:20px;
 }
 
 .close{
 float:right;
-font-size:24px;
+font-size:28px;
 cursor:pointer;
 }
 
 .water-btn{
-margin-top:20px;
+margin-top:15px;
 padding:12px 20px;
 border:none;
 border-radius:12px;
 background:#2ecc71;
 color:white;
 cursor:pointer;
+}
+
+.hero{
+padding-top:100px;
+text-align:center;
+padding-bottom:40px;
+}
+
+.hero h1{
+font-size:3rem;
+}
+
+.hero p{
+opacity:.8;
+margin-top:10px;
+}
+
+.ground{
+position:absolute;
+bottom:0;
+width:100%;
+height:150px;
+background:#173a2d;
 }
 
 </style>
@@ -154,80 +174,36 @@ cursor:pointer;
 <body>
 
 <nav class="navbar">
+<div>🌲 BloomMemo</div>
 
-<div class="logo">
-🌲 BloomMemo
+<div>
+<a href="#">Home</a>
+<a href="#">Create</a>
+<a href="#">Forest</a>
+<a href="#">Profile</a>
 </div>
-
-<div class="nav-links">
-<a href="index.html">Home</a>
-<a href="create.html">Create</a>
-<a href="profile.html">Profile</a>
-</div>
-
 </nav>
 
 <section class="hero">
-
 <h1>🌲 Public Memory Forest</h1>
-
-<p>
-Explore memories planted by people around the world.
-</p>
-
-<div class="search-bar">
-<input
-type="text"
-id="searchInput"
-placeholder="Search memories...">
-</div>
-
+<p>Explore memories planted by people around the world.</p>
 </section>
 
-<div class="filters">
+<div id="forestMap">
 
-<button class="filter-btn active"
-onclick="filterCategory('all')">
-All </button>
+<div class="moon">🌙</div>
 
-<button class="filter-btn"
-onclick="filterCategory('Friendship')">
-Friendship </button>
-
-<button class="filter-btn"
-onclick="filterCategory('Love')">
-Love </button>
-
-<button class="filter-btn"
-onclick="filterCategory('Family')">
-Family </button>
-
-<button class="filter-btn"
-onclick="filterCategory('Achievement')">
-Achievement </button>
-
-<button class="filter-btn"
-onclick="filterCategory('Birthday')">
-Birthday </button>
+<div class="ground"></div>
 
 </div>
 
-<div
-id="forest"
-class="forest-grid">
-
-</div>
-
-<div
-id="memoryModal"
-class="modal">
+<div id="memoryModal" class="modal">
 
 <div class="modal-content">
 
-<span
-class="close"
-onclick="closeModal()">
-× </span>
+<span class="close" onclick="closeModal()">
+×
+</span>
 
 <h2 id="modalRecipient"></h2>
 
@@ -235,7 +211,7 @@ onclick="closeModal()">
 
 <p id="modalCategory"></p>
 
-<hr>
+<hr style="margin:15px 0">
 
 <p id="modalMessage"></p>
 
@@ -259,52 +235,90 @@ Waters: 0
 
 <script>
 
-let memories=[];
-let currentWaters=0;
+const memories = [
 
-Object.keys(localStorage)
-.forEach(key=>{
+{
+recipient:"Sarah",
+sender:"John",
+category:"Friendship",
+message:"Thank you for always being there.",
+createdAt:"2026-06-04"
+},
 
-if(key.startsWith("memory_")){
+{
+recipient:"Emma",
+sender:"David",
+category:"Love",
+message:"You changed my life forever.",
+createdAt:"2026-06-01"
+},
 
-memories.push(
-JSON.parse(
-localStorage.getItem(key)
-)
-);
+{
+recipient:"Mom",
+sender:"Arjun",
+category:"Family",
+message:"Thank you for everything.",
+createdAt:"2026-05-28"
+},
+
+{
+recipient:"Ravi",
+sender:"Anil",
+category:"Achievement",
+message:"Congratulations on your success!",
+createdAt:"2026-05-20"
+}
+
+];
+
+let waters = 0;
+
+const forest =
+document.getElementById("forestMap");
+
+function treeEmoji(category){
+
+switch(category){
+
+case "Love":
+return "🌸";
+
+case "Family":
+return "🌲";
+
+case "Achievement":
+return "✨";
+
+default:
+return "🌳";
 
 }
 
-});
+}
 
-renderForest(memories);
+function renderForest(){
 
-function renderForest(data){
+memories.forEach(memory=>{
 
-const forest=
-document.getElementById("forest");
-
-forest.innerHTML="";
-
-data.forEach(memory=>{
-
-const tree=
+const tree =
 document.createElement("div");
 
-tree.className="tree-card";
+tree.className="memory-tree";
+
+tree.style.left=
+(Math.random()*85+5)+"%";
+
+tree.style.top=
+(Math.random()*70+15)+"%";
 
 tree.innerHTML=`
 
 <div class="tree-icon">
-🌳
+${treeEmoji(memory.category)}
 </div>
 
-<h3>
+<div class="tree-name">
 ${memory.recipient}
-</h3>
-
-<div class="meta">
-${memory.category}
 </div>
 
 `;
@@ -325,35 +339,33 @@ function openModal(memory){
 
 document.getElementById(
 "modalRecipient"
-).textContent=
-"🌸 "+memory.recipient;
+).innerText =
+memory.recipient;
 
 document.getElementById(
 "modalSender"
-).textContent=
-"From: "+memory.sender;
+).innerText =
+"From: " + memory.sender;
 
 document.getElementById(
 "modalCategory"
-).textContent=
-"Category: "+memory.category;
+).innerText =
+memory.category;
 
 document.getElementById(
 "modalMessage"
-).textContent=
+).innerText =
 memory.message;
 
 document.getElementById(
 "modalDate"
-).textContent=
-"Created: "+
-new Date(
-memory.createdAt
-).toLocaleDateString();
+).innerText =
+memory.createdAt;
 
 document.getElementById(
 "memoryModal"
-).style.display="flex";
+).style.display =
+"flex";
 
 }
 
@@ -361,70 +373,47 @@ function closeModal(){
 
 document.getElementById(
 "memoryModal"
-).style.display="none";
+).style.display =
+"none";
 
 }
-
-function filterCategory(category){
-
-if(category==="all"){
-
-renderForest(memories);
-
-return;
-
-}
-
-renderForest(
-
-memories.filter(
-m=>m.category===category
-)
-
-);
-
-}
-
-document
-.getElementById(
-"searchInput"
-)
-.addEventListener(
-"input",
-function(){
-
-const value=
-this.value.toLowerCase();
-
-renderForest(
-
-memories.filter(m=>
-
-m.recipient
-.toLowerCase()
-.includes(value)
-
-)
-
-);
-
-}
-);
 
 function waterTree(){
 
-currentWaters++;
+waters++;
 
 document.getElementById(
 "waterCount"
-).textContent=
-"Waters: "+
-currentWaters;
+).innerText =
+"Waters: " + waters;
 
 }
+
+for(let i=0;i<40;i++){
+
+const fly =
+document.createElement("div");
+
+fly.className="firefly";
+
+fly.innerHTML="✨";
+
+fly.style.left=
+Math.random()*100+"%";
+
+fly.style.top=
+Math.random()*100+"%";
+
+fly.style.animationDelay=
+Math.random()*5+"s";
+
+forest.appendChild(fly);
+
+}
+
+renderForest();
 
 </script>
 
 </body>
-
 </html>
