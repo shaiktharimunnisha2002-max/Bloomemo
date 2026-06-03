@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BloomMemo V2</title>
+<style>
+body{
+margin:0;font-family:Arial,sans-serif;
+background:linear-gradient(#07111f,#10233f);
+color:white;min-height:100vh;
+display:flex;justify-content:center;align-items:center;
+padding:20px;
+}
+.card{
+width:100%;max-width:500px;
+background:rgba(255,255,255,.08);
+backdrop-filter:blur(8px);
+padding:20px;border-radius:20px;
+}
+input,textarea{
+width:100%;padding:12px;margin:8px 0;
+border:none;border-radius:10px;
+}
+button{
+width:100%;padding:12px;border:none;
+border-radius:10px;background:#22c55e;
+color:white;font-size:16px;cursor:pointer;
+}
+.center{text-align:center}
+#garden{height:260px;position:relative;overflow:hidden}
+#soil{
+position:absolute;bottom:0;width:100%;
+height:70px;background:#4a2f1d;border-radius:20px 20px 0 0;
+}
+#plant{
+position:absolute;left:50%;bottom:70px;
+transform:translateX(-50%);
+font-size:30px;
+}
+.hidden{display:none}
+.link{
+background:#111;padding:10px;border-radius:10px;
+word-break:break-all;margin:10px 0;
+}
+</style>
+</head>
+<body>
+<div class="card" id="app"></div>
+
+<script>
+const app=document.getElementById("app");
+
+function home(){
+app.innerHTML=`
+<h1 class="center">🌱 BloomMemo V2</h1>
+<p class="center">Plant a memory</p>
+<input id="to" placeholder="Recipient Name">
+<input id="from" placeholder="Your Name">
+<textarea id="msg" placeholder="Your memory"></textarea>
+<button onclick="createMemory()">Create Memory</button>
+`;
+}
+
+function createMemory(){
+const data={
+to:document.getElementById("to").value,
+from:document.getElementById("from").value,
+msg:document.getElementById("msg").value
+};
+
+const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+const url=location.origin+location.pathname+"?m="+encoded;
+
+app.innerHTML=`
+<h2>🌸 Memory Created</h2>
+<div class="link">${url}</div>
+<button onclick="navigator.clipboard.writeText('${url}')">Copy Link</button>
+<p>Host this file on Netlify/GitHub Pages for public sharing.</p>
+`;
+}
+
+function showMemory(data){
+app.innerHTML=`
+<div id="garden">
+<div id="plant">🌰</div>
+<div id="soil"></div>
+</div>
+<h2 class="center">A memory for ${data.to}</h2>
+<p class="center">From ${data.from}</p>
+<button id="revealBtn" class="hidden" onclick="reveal()">💌 Reveal Memory</button>
+<div id="memory"></div>
+`;
+
+const plant=document.getElementById("plant");
+const btn=document.getElementById("revealBtn");
+
+setTimeout(()=>{plant.innerHTML="🌱";plant.style.fontSize="40px";},1000);
+setTimeout(()=>{plant.innerHTML="🌿";plant.style.fontSize="55px";},2200);
+setTimeout(()=>{plant.innerHTML="🌷";plant.style.fontSize="70px";},3500);
+setTimeout(()=>{plant.innerHTML="🌸";plant.style.fontSize="90px";},5000);
+setTimeout(()=>{btn.classList.remove("hidden");},5500);
+
+window.reveal=function(){
+let visits=Number(localStorage.getItem("bloommemo_visits")||0)+1;
+localStorage.setItem("bloommemo_visits",visits);
+
+document.getElementById("memory").innerHTML=`
+<div style="margin-top:15px;padding:15px;background:rgba(255,255,255,.1);border-radius:12px">
+<h3>💌 Memory</h3>
+<p>${data.msg}</p>
+<p><b>Visitors:</b> ${visits}</p>
+<button onclick="water()">💧 Water Memory</button>
+<div id="waterLevel"></div>
+</div>`;
+}
+
+window.water=function(){
+let water=Number(localStorage.getItem("water")||0)+1;
+localStorage.setItem("water",water);
+document.getElementById("waterLevel").innerHTML=
+"Growth Level: "+water+" 💧";
+}
+}
+
+const params=new URLSearchParams(location.search);
+if(params.get("m")){
+const data=JSON.parse(decodeURIComponent(escape(atob(params.get("m")))));
+showMemory(data);
+}else{
+home();
+}
+</script>
+</body>
+</html>
