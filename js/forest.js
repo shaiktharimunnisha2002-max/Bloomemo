@@ -1,0 +1,1 @@
+const f=document.getElementById('forest');Object.keys(localStorage).filter(k=>k.startsWith('memory_')).forEach(k=>{const m=JSON.parse(localStorage[k]);const d=document.createElement('div');d.innerHTML='🌳 '+m.recipient;f.appendChild(d);});
