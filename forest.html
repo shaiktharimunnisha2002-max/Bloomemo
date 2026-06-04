@@ -40,18 +40,25 @@ text-decoration:none;
 margin-left:20px;
 }
 
+.hero{
+padding-top:100px;
+padding-bottom:30px;
+text-align:center;
+}
+
 #forestMap{
 position:relative;
 width:100%;
 height:1800px;
+overflow:hidden;
+
 background:
 linear-gradient(
 180deg,
 #07111f 0%,
 #10233f 50%,
-#1a4733 100%
+#173d2f 100%
 );
-overflow:hidden;
 }
 
 .moon{
@@ -66,11 +73,12 @@ position:absolute;
 cursor:pointer;
 transition:.3s;
 user-select:none;
+z-index:5;
 }
 
 .memory-tree:hover{
 transform:scale(1.2);
-filter:drop-shadow(0 0 15px #7dff9d);
+filter:drop-shadow(0 0 20px #7dff9d);
 }
 
 .tree-icon{
@@ -87,14 +95,15 @@ margin-top:5px;
 
 .firefly{
 position:absolute;
-font-size:16px;
+font-size:14px;
 animation:float 5s infinite ease-in-out;
+opacity:.8;
 }
 
 @keyframes float{
 
 0%{
-transform:translateY(0px);
+transform:translateY(0);
 opacity:.3;
 }
 
@@ -104,10 +113,18 @@ opacity:1;
 }
 
 100%{
-transform:translateY(0px);
+transform:translateY(0);
 opacity:.3;
 }
 
+}
+
+.ground{
+position:absolute;
+bottom:0;
+width:100%;
+height:150px;
+background:#173a2d;
 }
 
 .modal{
@@ -123,14 +140,14 @@ z-index:2000;
 .modal-content{
 background:#10233f;
 width:90%;
-max-width:500px;
+max-width:550px;
 padding:25px;
 border-radius:20px;
 }
 
 .close{
 float:right;
-font-size:28px;
+font-size:30px;
 cursor:pointer;
 }
 
@@ -144,27 +161,12 @@ color:white;
 cursor:pointer;
 }
 
-.hero{
-padding-top:100px;
-text-align:center;
-padding-bottom:40px;
-}
-
-.hero h1{
-font-size:3rem;
-}
-
-.hero p{
-opacity:.8;
-margin-top:10px;
-}
-
-.ground{
+.empty{
 position:absolute;
-bottom:0;
-width:100%;
-height:150px;
-background:#173a2d;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+text-align:center;
 }
 
 </style>
@@ -174,24 +176,34 @@ background:#173a2d;
 <body>
 
 <nav class="navbar">
-<div>🌲 BloomMemo</div>
 
 <div>
-<a href="#">Home</a>
-<a href="#">Create</a>
-<a href="#">Forest</a>
-<a href="#">Profile</a>
+🌲 BloomMemo
 </div>
+
+<div>
+<a href="index.html">Home</a>
+<a href="create.html">Create</a>
+<a href="forest.html">Forest</a>
+</div>
+
 </nav>
 
 <section class="hero">
+
 <h1>🌲 Public Memory Forest</h1>
-<p>Explore memories planted by people around the world.</p>
+
+<p>
+Every memory grows into a tree.
+</p>
+
 </section>
 
 <div id="forestMap">
 
-<div class="moon">🌙</div>
+<div class="moon">
+🌙
+</div>
 
 <div class="ground"></div>
 
@@ -201,9 +213,10 @@ background:#173a2d;
 
 <div class="modal-content">
 
-<span class="close" onclick="closeModal()">
-×
-</span>
+<span
+class="close"
+onclick="closeModal()">
+× </span>
 
 <h2 id="modalRecipient"></h2>
 
@@ -235,46 +248,17 @@ Waters: 0
 
 <script>
 
-const memories = [
-
-{
-recipient:"Sarah",
-sender:"John",
-category:"Friendship",
-message:"Thank you for always being there.",
-createdAt:"2026-06-04"
-},
-
-{
-recipient:"Emma",
-sender:"David",
-category:"Love",
-message:"You changed my life forever.",
-createdAt:"2026-06-01"
-},
-
-{
-recipient:"Mom",
-sender:"Arjun",
-category:"Family",
-message:"Thank you for everything.",
-createdAt:"2026-05-28"
-},
-
-{
-recipient:"Ravi",
-sender:"Anil",
-category:"Achievement",
-message:"Congratulations on your success!",
-createdAt:"2026-05-20"
-}
-
-];
-
-let waters = 0;
-
 const forest =
 document.getElementById("forestMap");
+
+const memories =
+JSON.parse(
+localStorage.getItem(
+"bloommemo_memories"
+)
+) || [];
+
+let waters = 0;
 
 function treeEmoji(category){
 
@@ -285,6 +269,9 @@ return "🌸";
 
 case "Family":
 return "🌲";
+
+case "Birthday":
+return "🌻";
 
 case "Achievement":
 return "✨";
@@ -298,7 +285,46 @@ return "🌳";
 
 function renderForest(){
 
+document
+.querySelectorAll(".memory-tree")
+.forEach(el=>el.remove());
+
+if(memories.length===0){
+
+const empty =
+document.createElement("div");
+
+empty.className="empty";
+
+empty.innerHTML=`
+
+<h2>
+🌱 Your forest is empty
+</h2>
+
+<p>
+Create your first memory.
+</p>
+
+`;
+
+forest.appendChild(empty);
+
+return;
+
+}
+
 memories.forEach(memory=>{
+
+if(!memory.x){
+
+memory.x =
+Math.random()*85+5;
+
+memory.y =
+Math.random()*70+15;
+
+}
 
 const tree =
 document.createElement("div");
@@ -306,10 +332,10 @@ document.createElement("div");
 tree.className="memory-tree";
 
 tree.style.left=
-(Math.random()*85+5)+"%";
+memory.x+"%";
 
 tree.style.top=
-(Math.random()*70+15)+"%";
+memory.y+"%";
 
 tree.innerHTML=`
 
@@ -333,38 +359,45 @@ forest.appendChild(tree);
 
 });
 
+localStorage.setItem(
+"bloommemo_memories",
+JSON.stringify(memories)
+);
+
 }
 
 function openModal(memory){
 
 document.getElementById(
 "modalRecipient"
-).innerText =
-memory.recipient;
+).innerText=
+"🌸 "+memory.recipient;
 
 document.getElementById(
 "modalSender"
-).innerText =
-"From: " + memory.sender;
+).innerText=
+"From: "+memory.sender;
 
 document.getElementById(
 "modalCategory"
-).innerText =
-memory.category;
+).innerText=
+"Category: "+memory.category;
 
 document.getElementById(
 "modalMessage"
-).innerText =
+).innerText=
 memory.message;
 
 document.getElementById(
 "modalDate"
-).innerText =
-memory.createdAt;
+).innerText=
+new Date(
+memory.createdAt
+).toLocaleString();
 
 document.getElementById(
 "memoryModal"
-).style.display =
+).style.display=
 "flex";
 
 }
@@ -373,7 +406,7 @@ function closeModal(){
 
 document.getElementById(
 "memoryModal"
-).style.display =
+).style.display=
 "none";
 
 }
@@ -384,8 +417,8 @@ waters++;
 
 document.getElementById(
 "waterCount"
-).innerText =
-"Waters: " + waters;
+).innerText=
+"Waters: "+waters;
 
 }
 
